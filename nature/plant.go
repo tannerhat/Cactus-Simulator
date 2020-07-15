@@ -2,10 +2,12 @@ package nature
 
 import (
 	"image/color"
+
+	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
 type plant struct {
-	*shape
+	*game.Shape
 	root             *roots
 	water            uint32
 	speed            int
@@ -15,17 +17,17 @@ type plant struct {
 
 func NewPlant(x int, y int, root *roots) *plant {
 	p := &plant{
-		shape:            NewShape(x, y, 1, 1, color.RGBA{0x00, 0xff, 0x00, 0xff}),
+		Shape:            game.NewShape(x, y, 1, 1, color.RGBA{0x00, 0xff, 0x00, 0xff}),
 		speed:            2,
 		ticks:            0,
 		root:             root,
 		waterCostPerCell: 20,
 	}
-	p.cells[0][0] = true
+	p.Cells[0][0] = true
 	return p
 }
 
-func (p *plant) Update(gameboard GameBoard) {
+func (p *plant) Update(gameboard game.GameBoard) {
 	p.ticks++
 	if p.ticks%p.speed == 0 {
 		p.water += p.root.SuckWater()
@@ -36,13 +38,13 @@ func (p *plant) Update(gameboard GameBoard) {
 		// growing wider means adding Height cells
 		waterCost := uint32(p.Height()) * p.waterCostPerCell
 		if p.water >= waterCost {
-			p.cells = append(p.cells, make([]bool, p.Height()))
-			for y := range p.cells[p.Width()-1] {
-				p.cells[p.Width()-1][y] = true
+			p.Cells = append(p.Cells, make([]bool, p.Height()))
+			for y := range p.Cells[p.Width()-1] {
+				p.Cells[p.Width()-1][y] = true
 			}
 
 			if p.Width()%2 != 0 {
-				p.x--
+				p.X--
 			}
 			p.water -= waterCost
 		}
@@ -50,10 +52,10 @@ func (p *plant) Update(gameboard GameBoard) {
 		// just get taller (add Width cells)
 		waterCost := uint32(p.Width()) * p.waterCostPerCell
 		if p.water >= waterCost {
-			for x := range p.cells {
-				p.cells[x] = append(p.cells[x], true)
+			for x := range p.Cells {
+				p.Cells[x] = append(p.Cells[x], true)
 			}
-			p.y--
+			p.Y--
 			p.water -= waterCost
 		}
 	}

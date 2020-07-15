@@ -7,10 +7,11 @@ import (
 	"sync"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
 type soil struct {
-	*solid
+	*game.Solid
 	wetness       [][]uint32
 	absorbRate    int
 	evaporateRate int
@@ -25,14 +26,14 @@ func (s *soil) Name() string {
 
 func NewSoil(x int, y int, width int, height int) *soil {
 	s := &soil{
-		solid:         NewSolid(x, y, width, height, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
+		Solid:         game.NewSolid(x, y, width, height, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
 		absorbRate:    3,
 		evaporateRate: 300,
 	}
 
 	s.colors = make([]color.Color, maxWetness+1)
 	for wetness := range s.colors {
-		r, g, b, a := s.color.RGBA()
+		r, g, b, a := color.RGBA{0xc2, 0xb2, 0x80, 0xff}.RGBA()
 		r &= 0xff
 		g &= 0xff
 		b &= 0xff
@@ -47,10 +48,10 @@ func NewSoil(x int, y int, width int, height int) *soil {
 
 	}
 
-	for x := range s.cells {
-		for y := range s.cells[x] {
+	for x := range s.Cells {
+		for y := range s.Cells[x] {
 			// soil is fully solid
-			s.cells[x][y] = true
+			s.Cells[x][y] = true
 		}
 	}
 
@@ -70,9 +71,9 @@ func (s *soil) Draw(screen *ebiten.Image, scale int) {
 		c := s.getColor(wetness)
 		cellImage.Fill(c)
 
-		for x := range s.cells {
-			for y := range s.cells[x] {
-				if s.cells[x][y] {
+		for x := range s.Cells {
+			for y := range s.Cells[x] {
+				if s.Cells[x][y] {
 					cellWetness := s.wetness[x][y]
 					if cellWetness > maxWetness {
 						cellWetness = maxWetness
@@ -80,7 +81,7 @@ func (s *soil) Draw(screen *ebiten.Image, scale int) {
 					if cellWetness == wetness {
 						// scale color by wetness
 						op := &ebiten.DrawImageOptions{}
-						op.GeoM.Translate(float64((s.x+x)*5), float64((s.y+y)*5))
+						op.GeoM.Translate(float64((s.X+x)*5), float64((s.Y+y)*5))
 						screen.DrawImage(cellImage, op)
 					}
 				}
@@ -102,7 +103,7 @@ func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
 
 }
 
-func (s *soil) Update(gameBoard GameBoard) {
+func (s *soil) Update(gameBoard game.GameBoard) {
 	directions := [][]int{
 		[]int{0, 1},
 		[]int{0, -1},
@@ -142,8 +143,8 @@ func (s *soil) Update(gameBoard GameBoard) {
 // Absorb takes the gameboard coordinates of a soil cell and returns true if that cell successfully absorbs
 func (s *soil) Absorb(x int, y int) bool {
 	// convert x and y into soil position
-	x -= s.x
-	y -= s.y
+	x -= s.X
+	y -= s.Y
 
 	// we can absorb upt to max wetness + 1. an oversaturated soil cell is capable
 	// of sending its extra water to neighbors. If we don't allow oversaturation,
@@ -158,11 +159,11 @@ func (s *soil) Absorb(x int, y int) bool {
 }
 
 // TODO implement absorber interface so soil can use the solid AddToBoard
-func (s *soil) AddToBoard(gameboard GameBoard) {
-	for x := range s.cells {
-		for y := range s.cells[x] {
-			if s.cells[x][y] {
-				gameboard.SetEntity(s, s.x+x, s.y+y)
+func (s *soil) AddToBoard(gameboard game.GameBoard) {
+	for x := range s.Cells {
+		for y := range s.Cells[x] {
+			if s.Cells[x][y] {
+				gameboard.SetEntity(s, s.X+x, s.Y+y)
 			}
 		}
 	}
@@ -173,26 +174,26 @@ func (s *soil) AddToBoard(gameboard GameBoard) {
 // the soil will no longer draw the cell, otherwise no change.
 func (s *soil) DigPartial(x int, y int) error {
 	// convert x and y into soil position
-	x -= s.x
-	y -= s.y
+	x -= s.X
+	y -= s.Y
 
 	if x < 0 || y < 0 || x >= s.Width() || y >= s.Height() {
-		return fmt.Errorf("cell being dug (%d,%d)(%d,%d) is not in the soil", x+s.x, y+s.y, x, y)
+		return fmt.Errorf("cell being dug (%d,%d)(%d,%d) is not in the soil", x+s.X, y+s.Y, x, y)
 	}
 
 	// don't display as part of the shape
-	s.cells[x][y] = false
+	s.Cells[x][y] = false
 
 	return nil
 }
 
 func (s *soil) IsWet(x int, y int) (bool, error) {
 	// convert x and y into soil position
-	x -= s.x
-	y -= s.y
+	x -= s.X
+	y -= s.Y
 
 	if x < 0 || y < 0 || x >= s.Width() || y >= s.Height() {
-		return false, fmt.Errorf("cell being checked (%d,%d)(%d,%d) is not in the soil", x+s.x, y+s.y, x, y)
+		return false, fmt.Errorf("cell being checked (%d,%d)(%d,%d) is not in the soil", x+s.X, y+s.Y, x, y)
 	}
 
 	return s.wetness[x][y] > 0, nil
@@ -200,11 +201,11 @@ func (s *soil) IsWet(x int, y int) (bool, error) {
 
 func (s *soil) RemoveWater(x int, y int) (bool, error) {
 	// convert x and y into soil position
-	x -= s.x
-	y -= s.y
+	x -= s.X
+	y -= s.Y
 
 	if x < 0 || y < 0 || x >= s.Width() || y >= s.Height() {
-		return false, fmt.Errorf("cell being checked (%d,%d)(%d,%d) is not in the soil", x+s.x, y+s.y, x, y)
+		return false, fmt.Errorf("cell being checked (%d,%d)(%d,%d) is not in the soil", x+s.X, y+s.Y, x, y)
 	}
 
 	if s.wetness[x][y] > 0 {

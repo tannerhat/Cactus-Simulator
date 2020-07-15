@@ -1,4 +1,4 @@
-package nature
+package game
 
 import (
 	"sync"

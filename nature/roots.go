@@ -5,12 +5,13 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
 const maxRootWetness uint32 = 3
 
 type roots struct {
-	*shape
+	*game.Shape
 	rootRoot *rootCell
 	growRate int
 	speed    int
@@ -31,7 +32,7 @@ func (c *roots) Name() string {
 
 func NewRoots(x int, y int, width int, height int, startX int, startY int) *roots {
 	r := &roots{
-		shape: NewShape(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
+		Shape: game.NewShape(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rootRoot: &rootCell{
 			children: make([]*rootCell, 0),
 			wetness:  0,
@@ -43,19 +44,19 @@ func NewRoots(x int, y int, width int, height int, startX int, startY int) *root
 		ticks:    0,
 	}
 
-	r.cells[startX][startY] = true
+	r.Cells[startX][startY] = true
 
 	return r
 }
 
-func (rc *rootCell) absorbFromSoil(gameboard GameBoard, rootBox *roots) {
+func (rc *rootCell) absorbFromSoil(gameboard game.GameBoard, rootBox *roots) {
 	for _, child := range rc.children {
 		child.absorbFromSoil(gameboard, rootBox)
 	}
 
 	if rc.wetness < maxRootWetness {
-		boardX := rootBox.x + rc.x
-		boardY := rootBox.y + rc.y
+		boardX := rootBox.X + rc.x
+		boardY := rootBox.Y + rc.y
 		entity := gameboard.EntityAt(boardX, boardY)
 		if soil, ok := entity.(*soil); ok {
 			// we we only grow into a wet cell
@@ -76,8 +77,8 @@ func (rc *rootCell) absorbFromSoil(gameboard GameBoard, rootBox *roots) {
 					continue
 				}
 
-				boardX := rootBox.x + rc.x + dX
-				boardY := rootBox.y + rc.y + dY
+				boardX := rootBox.X + rc.x + dX
+				boardY := rootBox.Y + rc.y + dY
 
 				entity := gameboard.EntityAt(boardX, boardY)
 				if soil, ok := entity.(*soil); ok {
@@ -122,7 +123,7 @@ func (rc *rootCell) getWaterFromChildren() uint32 {
 // grow tells a root cell to grow. a call to grow will result in at most 1
 // new root cell. grow will add the grown cells to the linked list as well
 // as to the rootBox contaning it.
-func (rc *rootCell) grow(gameboard GameBoard, rootBox *roots) bool {
+func (rc *rootCell) grow(gameboard game.GameBoard, rootBox *roots) bool {
 	// we favor deep root growth, give children a chance to grow first
 	for _, child := range rc.children {
 		if child.grow(gameboard, rootBox) {
@@ -147,7 +148,7 @@ func (rc *rootCell) grow(gameboard GameBoard, rootBox *roots) bool {
 	return false
 }
 
-func (r *roots) AddRoot(x int, y int, gameboard GameBoard) bool {
+func (r *roots) AddRoot(x int, y int, gameboard game.GameBoard) bool {
 	if x < 0 || x >= r.Width() || y < 0 || y >= r.Height() {
 		return false
 	}
@@ -162,7 +163,7 @@ func (r *roots) AddRoot(x int, y int, gameboard GameBoard) bool {
 
 			// we want to allow a continuous
 
-			if r.cells[x+dX][y+dY] {
+			if r.Cells[x+dX][y+dY] {
 				rootsFound++
 			}
 		}
@@ -172,8 +173,8 @@ func (r *roots) AddRoot(x int, y int, gameboard GameBoard) bool {
 		return false
 	}
 
-	boardX := r.x + x
-	boardY := r.y + y
+	boardX := r.X + x
+	boardY := r.Y + y
 	entity := gameboard.EntityAt(boardX, boardY)
 	if soil, ok := entity.(*soil); ok {
 		// we we only grow into a wet cell
@@ -187,7 +188,7 @@ func (r *roots) AddRoot(x int, y int, gameboard GameBoard) bool {
 			if err != nil {
 				return false
 			}
-			r.cells[x][y] = true
+			r.Cells[x][y] = true
 			return true
 		}
 	}
@@ -216,7 +217,7 @@ func (rc *rootCell) Draw(box *roots, screen *ebiten.Image, scale int, image *ebi
 	}
 	if rootWetness == wetness {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64((box.x+rc.x)*5), float64((box.y+rc.y)*5))
+		op.GeoM.Translate(float64((box.X+rc.x)*5), float64((box.Y+rc.y)*5))
 		screen.DrawImage(image, op)
 	}
 
@@ -229,7 +230,7 @@ func (r *roots) SuckWater() uint32 {
 	return r.rootRoot.getWaterFromChildren()
 }
 
-func (r *roots) Update(gameBoard GameBoard) {
+func (r *roots) Update(gameBoard game.GameBoard) {
 	r.rootRoot.grow(gameBoard, r)
 
 	r.ticks++
@@ -238,17 +239,17 @@ func (r *roots) Update(gameBoard GameBoard) {
 	}
 }
 
-func (r *roots) AddToBoard(gameBoard GameBoard) {
+func (r *roots) AddToBoard(gameBoard game.GameBoard) {
 	// roots don't take up space on the board, they exist sort of on top
 	// of soil. entities that interact with the cells that roots occupy
 	// should treat the cells as containing soil. they must be in soil though
 	// so we must check that.
 
-	for x := range r.cells {
-		for y := range r.cells[x] {
-			if r.cells[x][y] {
-				boardX := r.x + x
-				boardY := r.y + y
+	for x := range r.Cells {
+		for y := range r.Cells[x] {
+			if r.Cells[x][y] {
+				boardX := r.X + x
+				boardY := r.Y + y
 				entity := gameBoard.EntityAt(boardX, boardY)
 				if soil, ok := entity.(*soil); ok {
 					err := soil.DigPartial(boardX, boardY)

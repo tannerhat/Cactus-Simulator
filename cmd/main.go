@@ -10,6 +10,7 @@ import (
 	"github.com/hajimehoshi/ebiten/ebitenutil"
 	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/paulbellamy/ratecounter"
+	"github.com/tannerhat/Cactus-Simulator/game"
 	"github.com/tannerhat/Cactus-Simulator/nature"
 )
 
@@ -20,7 +21,7 @@ const (
 
 type Game struct {
 	canvasImage *ebiten.Image
-	gameBoard   nature.GameBoard
+	gameBoard   game.GameBoard
 	drawTime    *ratecounter.AvgRateCounter
 	updateTime  *ratecounter.AvgRateCounter
 	debug       bool
@@ -75,7 +76,7 @@ func NewGame(width, height int) *Game {
 	}
 	g.canvasImage, _ = ebiten.NewImage(width, height, ebiten.FilterDefault)
 	g.canvasImage.Fill(color.RGBA{0x87, 0xce, 0xfa, 0xff})
-	b := nature.NewGameboard(width, height)
+	b := game.NewGameboard(width, height)
 	g.gameBoard = b
 
 	boardHeight := height / 5
