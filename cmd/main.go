@@ -81,7 +81,8 @@ func NewGame(width, height int) *Game {
 	boardHeight := height / 5
 	boardWidth := width / 5
 
-	g.gameBoard.AddEntity(nature.NewCloud(10, 5, 10, 5, 1))
+	g.gameBoard.AddEntity(nature.NewCloud(2, 5, 10, 5, 1))
+	g.gameBoard.AddEntity(nature.NewCloud(boardWidth-10-2, 10, 10, 5, 1))
 	g.gameBoard.AddEntity(nature.NewSoil(0, boardHeight-30, boardWidth, 30))
 	r := nature.NewRoots(0, boardHeight-30, boardWidth, 30, boardWidth/2, 0)
 	g.gameBoard.AddEntity(r)

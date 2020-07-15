@@ -39,7 +39,7 @@ func NewRoots(x int, y int, width int, height int, startX int, startY int) *root
 			y:        startY,
 		},
 		growRate: 100,
-		speed:    200,
+		speed:    600,
 		ticks:    0,
 	}
 
