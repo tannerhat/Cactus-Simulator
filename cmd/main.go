@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/ebitenutil"
+	"github.com/hajimehoshi/ebiten/inpututil"
+	"github.com/paulbellamy/ratecounter"
 	"github.com/tannerhat/Cactus-Simulator/nature"
 )
 
@@ -15,57 +18,27 @@ const (
 	screenHeight = 350
 )
 
-type avgStruct struct {
-	sum   time.Duration
-	count int
-}
-
 type Game struct {
-	canvasImage        *ebiten.Image
-	gameBoard          nature.GameBoard
-	updateCount        int
-	averageProcessTime map[string]*avgStruct
-	frames             int
-	start              time.Time
+	canvasImage *ebiten.Image
+	gameBoard   nature.GameBoard
+	drawTime    *ratecounter.AvgRateCounter
+	updateTime  *ratecounter.AvgRateCounter
+	debug       bool
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
-	g.updateCount++
-	if g.updateCount%1 == 0 {
-		entityChan := g.gameBoard.Entities()
-
-		for e := range entityChan {
-			entStart := time.Now()
-			entName := e.Name()
-			e.Update(g.gameBoard)
-
-			avg, ok := g.averageProcessTime[entName]
-			if !ok {
-				g.averageProcessTime[entName] = &avgStruct{
-					sum:   0,
-					count: 0,
-				}
-				avg = g.averageProcessTime[entName]
-			}
-
-			avg.sum += time.Since(entStart)
-			avg.count++
-		}
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+		g.debug = !g.debug
 	}
 
-	g.frames++
-	if g.updateCount%60 == 0 {
-		for k, v := range g.averageProcessTime {
-			fmt.Printf("%s\t%d\t%d\n", k, int(v.sum)/v.count, v.count)
-		}
+	updateStart := time.Now()
+	entityChan := g.gameBoard.Entities()
 
-		if g.updateCount%300 == 0 {
-			fmt.Printf("framerate: %d\n", g.frames/int(time.Since(g.start)/time.Second))
-			g.frames = 0
-			g.start = time.Now()
-		}
-
+	for e := range entityChan {
+		e.Update(g.gameBoard)
 	}
+
+	g.updateTime.Incr(int64(time.Since(updateStart)))
 
 	return nil
 }
@@ -76,14 +49,18 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	entityChan := g.gameBoard.Entities()
 	for e := range entityChan {
-		entStart := time.Now()
-		entName := e.Name()
 		e.Draw(screen, 5)
-		fmt.Printf("drawl %s: %d\n", entName, time.Since(entStart))
-
 	}
-	draw2 := time.Now()
-	fmt.Printf("drawtime: %d %d\n", time.Since(drawsStart), time.Since(draw2))
+
+	g.drawTime.Incr(int64(time.Since(drawsStart)))
+
+	if g.debug {
+		msg := fmt.Sprintf(`TPS: %0.2f
+FPS: %0.2f
+Draw Time: %0.2f ms
+Update Time %0.2f ms`, ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.drawTime.Rate()/float64(time.Millisecond), g.updateTime.Rate()/float64(time.Millisecond))
+		ebitenutil.DebugPrint(screen, msg)
+	}
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
@@ -92,15 +69,14 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func NewGame(width, height int) *Game {
 	g := Game{
-		updateCount:        0,
-		averageProcessTime: map[string]*avgStruct{},
+		drawTime:   ratecounter.NewAvgRateCounter(time.Second),
+		updateTime: ratecounter.NewAvgRateCounter(time.Second),
+		debug:      false,
 	}
 	g.canvasImage, _ = ebiten.NewImage(width, height, ebiten.FilterDefault)
 	g.canvasImage.Fill(color.RGBA{0x87, 0xce, 0xfa, 0xff})
 	b := nature.NewGameboard(width, height)
 	g.gameBoard = b
-	g.frames = 0
-	g.start = time.Now()
 
 	boardHeight := height / 5
 	boardWidth := width / 5

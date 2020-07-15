@@ -1,7 +1,6 @@
 package nature
 
 import (
-	"fmt"
 	"image/color"
 )
 
@@ -30,10 +29,6 @@ func (p *plant) Update(gameboard GameBoard) {
 	p.ticks++
 	if p.ticks%p.speed == 0 {
 		p.water += p.root.SuckWater()
-	}
-
-	if p.ticks%60 == 0 {
-		fmt.Println(p.water)
 	}
 
 	// if the cactus has gotten out of ratio, it gets wider
