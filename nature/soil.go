@@ -99,6 +99,10 @@ func (s *soil) getColor(wetness uint32) color.Color {
 }
 
 func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
+
+}
+
+func (s *soil) Update(gameBoard GameBoard) {
 	directions := [][]int{
 		[]int{0, 1},
 		[]int{0, -1},
@@ -110,14 +114,8 @@ func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
 		[]int{1, -1},
 	}
 
-	subGroupWidth := s.Width() / 4
-	subGroupStart := subGroupWidth*group + 2*subGroupWidth*subGroup
-	subGroupEnd := subGroupStart + subGroupWidth
-	if group == 1 && subGroup == 1 {
-		subGroupEnd = s.Width()
-	}
-	for x := subGroupStart; x < subGroupEnd; x++ {
-		for y := range s.cells[x] {
+	for x := 0; x < s.Width(); x++ {
+		for y := 0; y < s.Height(); y++ {
 			if (s.wetness[x][y] == 1 || (s.wetness[x][y] > 1 && y == 0)) && rand.Intn((y+1)*s.evaporateRate) == 0 {
 				s.wetness[x][y]--
 			}
@@ -138,22 +136,6 @@ func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
 				}
 			}
 		}
-	}
-	wg.Done()
-}
-
-func (s *soil) Update(gameBoard GameBoard) {
-
-	for group := 0; group < 2; group++ {
-		wg := &sync.WaitGroup{}
-
-		for subGroup := 0; subGroup < 2; subGroup++ {
-			wg.Add(1)
-
-			go s.updateSubGroup(group, subGroup, wg)
-		}
-
-		wg.Wait()
 	}
 }
 
