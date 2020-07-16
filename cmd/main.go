@@ -12,17 +12,17 @@ import (
 const (
 	screenWidth  = 300
 	screenHeight = 700
-	cellSize     = 10
+	scale        = 10
 )
 
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Cactus Simulator")
 
-	game := game.NewGame(screenWidth, screenHeight, color.RGBA{0x87, 0xce, 0xfa, 0xff}, cellSize)
+	game := game.NewGame(screenWidth, screenHeight, color.RGBA{0x87, 0xce, 0xfa, 0xff}, scale)
 
-	boardHeight := screenHeight / cellSize
-	boardWidth := screenWidth / cellSize
+	boardHeight := screenHeight / scale
+	boardWidth := screenWidth / scale
 
 	game.AddEntity(nature.NewCloud(2, 5, 10, 5, 1))
 	game.AddEntity(nature.NewCloud(boardWidth-10-2, 10, 10, 5, 1))

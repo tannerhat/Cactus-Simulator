@@ -19,7 +19,7 @@ type Game struct {
 	debug        bool
 	screenHeight int
 	screenWidth  int
-	cellSize     int
+	scale        int
 }
 
 func (g *Game) Update(screen *ebiten.Image) error {
@@ -45,7 +45,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 
 	entityChan := g.gameBoard.Entities()
 	for e := range entityChan {
-		e.Draw(screen, g.cellSize)
+		e.Draw(screen, g.scale)
 	}
 
 	g.drawTime.Incr(int64(time.Since(drawsStart)))
@@ -67,18 +67,18 @@ func (g *Game) AddEntity(entity Entity) {
 	g.gameBoard.AddEntity(entity)
 }
 
-func NewGame(width int, height int, background color.Color, cellSize int) *Game {
+func NewGame(width int, height int, background color.Color, scale int) *Game {
 	g := Game{
 		drawTime:     ratecounter.NewAvgRateCounter(time.Second),
 		updateTime:   ratecounter.NewAvgRateCounter(time.Second),
 		debug:        false,
 		screenWidth:  width,
 		screenHeight: height,
-		cellSize:     cellSize,
+		scale:        scale,
 	}
 	g.canvasImage, _ = ebiten.NewImage(width, height, ebiten.FilterDefault)
 	g.canvasImage.Fill(background)
-	b := NewGameboard(g.screenWidth/g.cellSize, g.screenHeight/g.cellSize)
+	b := NewGameboard(g.screenWidth/g.scale, g.screenHeight/g.scale)
 	g.gameBoard = b
 
 	return &g
