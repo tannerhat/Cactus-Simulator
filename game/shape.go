@@ -33,14 +33,14 @@ func NewShape(x int, y int, width int, height int, color color.Color) *Shape {
 }
 
 func (s *Shape) Draw(screen *ebiten.Image, scale int) {
-	cellImage, _ := ebiten.NewImage(5, 5, ebiten.FilterDefault)
+	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 	cellImage.Fill(s.color)
 
 	for x := range s.Cells {
 		for y := range s.Cells[x] {
 			if s.Cells[x][y] {
 				op := &ebiten.DrawImageOptions{}
-				op.GeoM.Translate(float64((s.X+x)*5), float64((s.Y+y)*5))
+				op.GeoM.Translate(float64((s.X+x)*scale), float64((s.Y+y)*scale))
 				screen.DrawImage(cellImage, op)
 			}
 		}

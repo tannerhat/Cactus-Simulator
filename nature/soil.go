@@ -38,7 +38,7 @@ func NewSoil(x int, y int, width int, height int) *soil {
 		g &= 0xff
 		b &= 0xff
 		a &= 0xff
-		// max wetness / 5 prevents the soil from being too dark
+		// max wetness / 2 prevents the soil from being too dark
 		s.colors[wetness] = color.RGBA{
 			uint8(((maxWetness + maxWetness/2) - uint32(wetness)) * r / (maxWetness + maxWetness/2)),
 			uint8(((maxWetness + maxWetness/2) - uint32(wetness)) * g / (maxWetness + maxWetness/2)),
@@ -64,7 +64,7 @@ func NewSoil(x int, y int, width int, height int) *soil {
 }
 
 func (s *soil) Draw(screen *ebiten.Image, scale int) {
-	cellImage, _ := ebiten.NewImage(5, 5, ebiten.FilterDefault)
+	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 
 	var wetness uint32
 	for ; wetness <= maxWetness; wetness++ {
@@ -81,7 +81,7 @@ func (s *soil) Draw(screen *ebiten.Image, scale int) {
 					if cellWetness == wetness {
 						// scale color by wetness
 						op := &ebiten.DrawImageOptions{}
-						op.GeoM.Translate(float64((s.X+x)*5), float64((s.Y+y)*5))
+						op.GeoM.Translate(float64((s.X+x)*scale), float64((s.Y+y)*scale))
 						screen.DrawImage(cellImage, op)
 					}
 				}

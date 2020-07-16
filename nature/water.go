@@ -1,11 +1,14 @@
 package nature
 
 import (
+	"image/color"
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
+
+var waterImage *ebiten.Image
 
 const maxDensity = 300
 
@@ -14,7 +17,6 @@ type water struct {
 	y       int
 	density int
 	settled int
-	image   *ebiten.Image
 }
 
 func (c *water) Name() string {
@@ -26,9 +28,22 @@ func (c *water) AddToBoard(gameBoard game.GameBoard) {
 }
 
 func (w *water) Draw(screen *ebiten.Image, scale int) {
+	if waterImage == nil {
+		// the first water to be drawn creates the image that all water will use
+		// to draw itself
+		waterImage, _ = ebiten.NewImage(scale, scale, ebiten.FilterDefault)
+
+		waterImage.Fill(color.RGBA{
+			0x00,
+			0x00,
+			0xff,
+			0xff,
+		})
+	}
+
 	op := &ebiten.DrawImageOptions{}
-	op.GeoM.Translate(float64(w.x*5), float64(w.y*5))
-	screen.DrawImage(w.image, op)
+	op.GeoM.Translate(float64(w.x*scale), float64(w.y*scale))
+	screen.DrawImage(waterImage, op)
 }
 
 func (c *water) flowTo(gameBoard game.GameBoard, x int, y int, force bool, dry bool) bool {
@@ -61,7 +76,6 @@ func (c *water) flowTo(gameBoard game.GameBoard, x int, y int, force bool, dry b
 				x:       x,
 				y:       y,
 				density: 1,
-				image:   c.image,
 			})
 			c.density--
 		}

@@ -22,10 +22,10 @@ type gameBoard struct {
 
 func NewGameboard(width int, height int) GameBoard {
 	g := &gameBoard{
-		board: make([][]Entity, width/5),
+		board: make([][]Entity, width),
 	}
 	for i := range g.board {
-		g.board[i] = make([]Entity, height/5)
+		g.board[i] = make([]Entity, height)
 	}
 	return g
 }

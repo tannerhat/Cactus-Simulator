@@ -11,10 +11,9 @@ import (
 
 type cloud struct {
 	*game.Solid
-	rate       int
-	ticks      int
-	raining    bool
-	waterImage *ebiten.Image
+	rate    int
+	ticks   int
+	raining bool
 }
 
 func (c *cloud) Name() string {
@@ -28,15 +27,6 @@ func NewCloud(x int, y int, width int, height int, rate int) *cloud {
 		ticks:   0,
 		raining: false,
 	}
-
-	c.waterImage, _ = ebiten.NewImage(5, 5, ebiten.FilterDefault)
-
-	c.waterImage.Fill(color.RGBA{
-		0x00,
-		0x00,
-		0xff,
-		0xff,
-	})
 
 	for x := range c.Cells {
 		for y := range c.Cells[x] {
@@ -63,7 +53,6 @@ func (c *cloud) Update(gameboard game.GameBoard) {
 					y:       c.Y + c.Height(),
 					density: 1,
 					settled: 0,
-					image:   c.waterImage,
 				},
 			)
 		}

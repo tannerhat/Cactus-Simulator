@@ -197,7 +197,7 @@ func (r *roots) AddRoot(x int, y int, gameboard game.GameBoard) bool {
 }
 
 func (r *roots) Draw(screen *ebiten.Image, scale int) {
-	cellImage, _ := ebiten.NewImage(5, 5, ebiten.FilterDefault)
+	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 
 	// draw dry roots
 	cellImage.Fill(color.RGBA{0xff, 0xff, 0xff, 0xff})
@@ -217,7 +217,7 @@ func (rc *rootCell) Draw(box *roots, screen *ebiten.Image, scale int, image *ebi
 	}
 	if rootWetness == wetness {
 		op := &ebiten.DrawImageOptions{}
-		op.GeoM.Translate(float64((box.X+rc.x)*5), float64((box.Y+rc.y)*5))
+		op.GeoM.Translate(float64((box.X+rc.x)*scale), float64((box.Y+rc.y)*scale))
 		screen.DrawImage(image, op)
 	}
 
