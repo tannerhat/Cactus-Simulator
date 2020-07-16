@@ -48,7 +48,7 @@ func (c *Cloud) Update() {
 	if c.raining {
 		if c.ticks%c.rate == 0 {
 			c.Gameboard.AddEntity(
-				&water{
+				&Water{
 					x:       rand.Intn(c.Width()-2) + c.X + 1, // because the edges are rounded
 					y:       c.Y + c.Height(),
 					density: 1,

@@ -8,11 +8,12 @@ import (
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
+// all water shares the same image. This is so that when drawing them, the draw operations can be combined into one big draw operation.
 var waterImage *ebiten.Image
 
 const maxDensity = 300
 
-type water struct {
+type Water struct {
 	x         int
 	y         int
 	density   int
@@ -20,16 +21,12 @@ type water struct {
 	gameboard game.Gameboard
 }
 
-func (c *water) Name() string {
-	return "water"
-}
-
-func (c *water) AddToBoard(gameBoard game.Gameboard) {
+func (c *Water) AddToBoard(gameBoard game.Gameboard) {
 	c.gameboard = gameBoard
 	c.gameboard.SetEntity(c, c.x, c.y)
 }
 
-func (w *water) Draw(screen *ebiten.Image, scale int) {
+func (w *Water) Draw(screen *ebiten.Image, scale int) {
 	if waterImage == nil {
 		// the first water to be drawn creates the image that all water will use
 		// to draw itself
@@ -48,7 +45,7 @@ func (w *water) Draw(screen *ebiten.Image, scale int) {
 	screen.DrawImage(waterImage, op)
 }
 
-func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry bool) bool {
+func (c *Water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry bool) bool {
 	width, height := gameBoard.Size()
 	if x < 0 || x >= width {
 		// off of left or right
@@ -74,7 +71,7 @@ func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry b
 		} else {
 			// we have more than one density, create a drop
 			// in the flow to position
-			gameBoard.AddEntity(&water{
+			gameBoard.AddEntity(&Water{
 				x:       x,
 				y:       y,
 				density: 1,
@@ -84,7 +81,7 @@ func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry b
 		return true
 	}
 
-	if other, ok := e.(*water); ok {
+	if other, ok := e.(*Water); ok {
 		if force && other.density == 1 && !other.underPressure(gameBoard) {
 			if dry {
 				return true
@@ -97,7 +94,7 @@ func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry b
 			}
 			return true
 		}
-	} else if other, ok := e.(*soil); ok {
+	} else if other, ok := e.(*Soil); ok {
 		if dry {
 			return false
 		}
@@ -114,14 +111,14 @@ func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry b
 	return false
 }
 
-func (c *water) underPressure(gameBoard game.Gameboard) bool {
+func (c *Water) underPressure(gameBoard game.Gameboard) bool {
 	return !(c.flowTo(gameBoard, c.x, c.y+1, false, true) ||
 		c.flowTo(gameBoard, c.x-1, c.y, false, true) ||
 		c.flowTo(gameBoard, c.x+1, c.y, false, true) ||
 		c.flowTo(gameBoard, c.x, c.y-1, false, true))
 }
 
-func (c *water) Update() {
+func (c *Water) Update() {
 	// try to flow down
 	if c.flowTo(c.gameboard, c.x, c.y+1, true, false) {
 		return

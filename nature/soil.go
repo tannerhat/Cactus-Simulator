@@ -10,7 +10,7 @@ import (
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
-type soil struct {
+type Soil struct {
 	*game.Solid
 	wetness       [][]uint32
 	absorbRate    int
@@ -20,12 +20,8 @@ type soil struct {
 
 const maxWetness uint32 = 3
 
-func (s *soil) Name() string {
-	return "soil"
-}
-
-func NewSoil(x int, y int, width int, height int) *soil {
-	s := &soil{
+func NewSoil(x int, y int, width int, height int) *Soil {
+	s := &Soil{
 		Solid:         game.NewSolid(x, y, width, height, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
 		absorbRate:    3,
 		evaporateRate: 300,
@@ -63,7 +59,7 @@ func NewSoil(x int, y int, width int, height int) *soil {
 	return s
 }
 
-func (s *soil) Draw(screen *ebiten.Image, scale int) {
+func (s *Soil) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 
 	var wetness uint32
@@ -92,18 +88,18 @@ func (s *soil) Draw(screen *ebiten.Image, scale int) {
 }
 
 // getColor takes the soil coordinates of a cell and returns the color to display the cell as
-func (s *soil) getColor(wetness uint32) color.Color {
+func (s *Soil) getColor(wetness uint32) color.Color {
 	if wetness > maxWetness {
 		wetness = maxWetness
 	}
 	return s.colors[wetness]
 }
 
-func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
+func (s *Soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
 
 }
 
-func (s *soil) Update() {
+func (s *Soil) Update() {
 	directions := [][]int{
 		[]int{0, 1},
 		[]int{0, -1},
@@ -141,7 +137,7 @@ func (s *soil) Update() {
 }
 
 // Absorb takes the gameboard coordinates of a soil cell and returns true if that cell successfully absorbs
-func (s *soil) Absorb(x int, y int) bool {
+func (s *Soil) Absorb(x int, y int) bool {
 	// convert x and y into soil position
 	x -= s.X
 	y -= s.Y
@@ -159,7 +155,7 @@ func (s *soil) Absorb(x int, y int) bool {
 }
 
 // TODO implement absorber interface so soil can use the solid AddToBoard
-func (s *soil) AddToBoard(gameboard game.Gameboard) {
+func (s *Soil) AddToBoard(gameboard game.Gameboard) {
 	s.Solid.AddToBoard(gameboard)
 	for x := range s.Cells {
 		for y := range s.Cells[x] {
@@ -173,7 +169,7 @@ func (s *soil) AddToBoard(gameboard game.Gameboard) {
 // DigPartial takes gameboard coordinates of a soil cell and "makes room" for an
 // entity to exist at those coordinates. Partial means that the change is cosmetic
 // the soil will no longer draw the cell, otherwise no change.
-func (s *soil) DigPartial(x int, y int) error {
+func (s *Soil) DigPartial(x int, y int) error {
 	// convert x and y into soil position
 	x -= s.X
 	y -= s.Y
@@ -188,7 +184,7 @@ func (s *soil) DigPartial(x int, y int) error {
 	return nil
 }
 
-func (s *soil) IsWet(x int, y int) (bool, error) {
+func (s *Soil) IsWet(x int, y int) (bool, error) {
 	// convert x and y into soil position
 	x -= s.X
 	y -= s.Y
@@ -200,7 +196,7 @@ func (s *soil) IsWet(x int, y int) (bool, error) {
 	return s.wetness[x][y] > 0, nil
 }
 
-func (s *soil) RemoveWater(x int, y int) (bool, error) {
+func (s *Soil) RemoveWater(x int, y int) (bool, error) {
 	// convert x and y into soil position
 	x -= s.X
 	y -= s.Y

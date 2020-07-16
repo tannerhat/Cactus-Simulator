@@ -6,17 +6,19 @@ import (
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
-type plant struct {
+// Plant is a Shape that takes in water from a root entity and grows bigger from the water.
+type Plant struct {
 	*game.Shape
-	root             *roots
+	root             *Roots
 	water            uint32
 	speed            int
 	ticks            int
 	waterCostPerCell uint32
 }
 
-func NewPlant(x int, y int, root *roots) *plant {
-	p := &plant{
+// NewPlant creates a plant that will start as a 1x1 Shape at x,y. It will SuckWater from root.
+func NewPlant(x int, y int, root *Roots) *Plant {
+	p := &Plant{
 		Shape:            game.NewShape(x, y, 1, 1, color.RGBA{0x00, 0xff, 0x00, 0xff}),
 		speed:            2,
 		ticks:            0,
@@ -27,7 +29,8 @@ func NewPlant(x int, y int, root *roots) *plant {
 	return p
 }
 
-func (p *plant) Update() {
+// Update will take in water from roots once every "speed" ticks. Once it gets enough water to grow, it will expand it's shape.
+func (p *Plant) Update() {
 	p.ticks++
 	if p.ticks%p.speed == 0 {
 		p.water += p.root.SuckWater()

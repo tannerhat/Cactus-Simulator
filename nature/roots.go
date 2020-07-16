@@ -10,7 +10,7 @@ import (
 
 const maxRootWetness uint32 = 3
 
-type roots struct {
+type Roots struct {
 	*game.Shape
 	rootRoot *rootCell
 	growRate int
@@ -26,12 +26,8 @@ type rootCell struct {
 	y        int
 }
 
-func (c *roots) Name() string {
-	return "roots"
-}
-
-func NewRoots(x int, y int, width int, height int, startX int, startY int) *roots {
-	r := &roots{
+func NewRoots(x int, y int, width int, height int, startX int, startY int) *Roots {
+	r := &Roots{
 		Shape: game.NewShape(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rootRoot: &rootCell{
 			children: make([]*rootCell, 0),
@@ -49,7 +45,7 @@ func NewRoots(x int, y int, width int, height int, startX int, startY int) *root
 	return r
 }
 
-func (rc *rootCell) absorbFromSoil(gameboard game.Gameboard, rootBox *roots) {
+func (rc *rootCell) absorbFromSoil(gameboard game.Gameboard, rootBox *Roots) {
 	for _, child := range rc.children {
 		child.absorbFromSoil(gameboard, rootBox)
 	}
@@ -58,7 +54,7 @@ func (rc *rootCell) absorbFromSoil(gameboard game.Gameboard, rootBox *roots) {
 		boardX := rootBox.X + rc.x
 		boardY := rootBox.Y + rc.y
 		entity := gameboard.EntityAt(boardX, boardY)
-		if soil, ok := entity.(*soil); ok {
+		if soil, ok := entity.(*Soil); ok {
 			// we we only grow into a wet cell
 			waterRemoved, err := soil.RemoveWater(boardX, boardY)
 			if err != nil {
@@ -81,7 +77,7 @@ func (rc *rootCell) absorbFromSoil(gameboard game.Gameboard, rootBox *roots) {
 				boardY := rootBox.Y + rc.y + dY
 
 				entity := gameboard.EntityAt(boardX, boardY)
-				if soil, ok := entity.(*soil); ok {
+				if soil, ok := entity.(*Soil); ok {
 					// we we only grow into a wet cell
 					waterRemoved, err := soil.RemoveWater(boardX, boardY)
 					if err != nil {
@@ -123,7 +119,7 @@ func (rc *rootCell) getWaterFromChildren() uint32 {
 // grow tells a root cell to grow. a call to grow will result in at most 1
 // new root cell. grow will add the grown cells to the linked list as well
 // as to the rootBox contaning it.
-func (rc *rootCell) grow(gameboard game.Gameboard, rootBox *roots) bool {
+func (rc *rootCell) grow(gameboard game.Gameboard, rootBox *Roots) bool {
 	// we favor deep root growth, give children a chance to grow first
 	for _, child := range rc.children {
 		if child.grow(gameboard, rootBox) {
@@ -148,7 +144,7 @@ func (rc *rootCell) grow(gameboard game.Gameboard, rootBox *roots) bool {
 	return false
 }
 
-func (r *roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
+func (r *Roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 	if x < 0 || x >= r.Width() || y < 0 || y >= r.Height() {
 		return false
 	}
@@ -176,7 +172,7 @@ func (r *roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 	boardX := r.X + x
 	boardY := r.Y + y
 	entity := gameboard.EntityAt(boardX, boardY)
-	if soil, ok := entity.(*soil); ok {
+	if soil, ok := entity.(*Soil); ok {
 		// we we only grow into a wet cell
 		wet, err := soil.IsWet(boardX, boardY)
 		if err != nil {
@@ -196,7 +192,7 @@ func (r *roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 	return false
 }
 
-func (r *roots) Draw(screen *ebiten.Image, scale int) {
+func (r *Roots) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 
 	// draw dry roots
@@ -210,7 +206,7 @@ func (r *roots) Draw(screen *ebiten.Image, scale int) {
 	}
 }
 
-func (rc *rootCell) Draw(box *roots, screen *ebiten.Image, scale int, image *ebiten.Image, wetness uint32) {
+func (rc *rootCell) Draw(box *Roots, screen *ebiten.Image, scale int, image *ebiten.Image, wetness uint32) {
 	rootWetness := rc.wetness
 	if rootWetness > maxRootWetness {
 		rootWetness = maxRootWetness
@@ -226,11 +222,11 @@ func (rc *rootCell) Draw(box *roots, screen *ebiten.Image, scale int, image *ebi
 	}
 }
 
-func (r *roots) SuckWater() uint32 {
+func (r *Roots) SuckWater() uint32 {
 	return r.rootRoot.getWaterFromChildren()
 }
 
-func (r *roots) Update() {
+func (r *Roots) Update() {
 	r.rootRoot.grow(r.Gameboard, r)
 
 	r.ticks++
@@ -239,7 +235,7 @@ func (r *roots) Update() {
 	}
 }
 
-func (r *roots) AddToBoard(gameBoard game.Gameboard) {
+func (r *Roots) AddToBoard(gameBoard game.Gameboard) {
 	r.Shape.AddToBoard(gameBoard)
 	// roots don't take up space on the board, they exist sort of on top
 	// of soil. entities that interact with the cells that roots occupy
@@ -252,7 +248,7 @@ func (r *roots) AddToBoard(gameBoard game.Gameboard) {
 				boardX := r.X + x
 				boardY := r.Y + y
 				entity := r.Gameboard.EntityAt(boardX, boardY)
-				if soil, ok := entity.(*soil); ok {
+				if soil, ok := entity.(*Soil); ok {
 					err := soil.DigPartial(boardX, boardY)
 					if err != nil {
 						panic(err)
