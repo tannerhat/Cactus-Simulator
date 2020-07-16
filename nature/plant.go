@@ -27,7 +27,7 @@ func NewPlant(x int, y int, root *roots) *plant {
 	return p
 }
 
-func (p *plant) Update(gameboard game.GameBoard) {
+func (p *plant) Update() {
 	p.ticks++
 	if p.ticks%p.speed == 0 {
 		p.water += p.root.SuckWater()

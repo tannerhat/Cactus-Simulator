@@ -41,13 +41,13 @@ func NewCloud(x int, y int, width int, height int, rate int) *cloud {
 	return c
 }
 
-func (c *cloud) Update(gameboard game.GameBoard) {
+func (c *cloud) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		c.raining = !c.raining
 	}
 	if c.raining {
 		if c.ticks%c.rate == 0 {
-			gameboard.AddEntity(
+			c.Gameboard.AddEntity(
 				&water{
 					x:       rand.Intn(c.Width()-2) + c.X + 1, // because the edges are rounded
 					y:       c.Y + c.Height(),

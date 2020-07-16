@@ -16,6 +16,7 @@ const (
 )
 
 func main() {
+	ebiten.SetRunnableOnUnfocused(true)
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Cactus Simulator")
 

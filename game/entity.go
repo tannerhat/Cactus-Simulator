@@ -6,7 +6,7 @@ import (
 
 type Entity interface {
 	Draw(screen *ebiten.Image, scale int)
-	Update(gameBoard GameBoard)
+	Update()
 	AddToBoard(gameBoard GameBoard)
 	Name() string
 }

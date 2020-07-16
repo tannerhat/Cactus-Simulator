@@ -13,10 +13,11 @@ var waterImage *ebiten.Image
 const maxDensity = 300
 
 type water struct {
-	x       int
-	y       int
-	density int
-	settled int
+	x         int
+	y         int
+	density   int
+	settled   int
+	gameboard game.GameBoard
 }
 
 func (c *water) Name() string {
@@ -24,7 +25,8 @@ func (c *water) Name() string {
 }
 
 func (c *water) AddToBoard(gameBoard game.GameBoard) {
-	gameBoard.SetEntity(c, c.x, c.y)
+	c.gameboard = gameBoard
+	c.gameboard.SetEntity(c, c.x, c.y)
 }
 
 func (w *water) Draw(screen *ebiten.Image, scale int) {
@@ -119,15 +121,15 @@ func (c *water) underPressure(gameBoard game.GameBoard) bool {
 		c.flowTo(gameBoard, c.x, c.y-1, false, true))
 }
 
-func (c *water) Update(gameBoard game.GameBoard) {
+func (c *water) Update() {
 	// try to flow down
-	if c.flowTo(gameBoard, c.x, c.y+1, true, false) {
+	if c.flowTo(c.gameboard, c.x, c.y+1, true, false) {
 		return
 	}
 
 	firstDir := -1 + 2*rand.Intn(2)
 	// we couldn't go down, try flowing first dir
-	if c.flowTo(gameBoard, c.x+firstDir, c.y, false, false) {
+	if c.flowTo(c.gameboard, c.x+firstDir, c.y, false, false) {
 		if c.density == 1 {
 			// we flowed left and are now single density, flowing in another
 			// direction will create a gap
@@ -137,7 +139,7 @@ func (c *water) Update(gameBoard game.GameBoard) {
 
 	firstDir = firstDir * -1 // opposite of first dir
 	// okay now try other dir
-	if c.flowTo(gameBoard, c.x+firstDir, c.y, false, false) {
+	if c.flowTo(c.gameboard, c.x+firstDir, c.y, false, false) {
 		if c.density == 1 {
 			// we flowed right and are now single density, flowing in another
 			// direction will create a gap
@@ -147,7 +149,7 @@ func (c *water) Update(gameBoard game.GameBoard) {
 
 	if c.density > 1 {
 		// okay fine, if we are multi density, try flowing up
-		if c.flowTo(gameBoard, c.x, c.y-1, true, false) {
+		if c.flowTo(c.gameboard, c.x, c.y-1, true, false) {
 			if c.density == 1 {
 				// we flowed left and are now single density, flowing in another
 				// direction will create a gap
@@ -157,7 +159,7 @@ func (c *water) Update(gameBoard game.GameBoard) {
 		}
 
 		// we couldn't go down, try flowing firstDir
-		if c.flowTo(gameBoard, c.x+firstDir, c.y, true, false) {
+		if c.flowTo(c.gameboard, c.x+firstDir, c.y, true, false) {
 			if c.density == 1 {
 				// we flowed left and are now single density, flowing in another
 				// direction will create a gap
@@ -167,7 +169,7 @@ func (c *water) Update(gameBoard game.GameBoard) {
 
 		firstDir = firstDir * -1 // opposite of first dir
 		// okay now try other dir
-		if c.flowTo(gameBoard, c.x+firstDir, c.y, true, false) {
+		if c.flowTo(c.gameboard, c.x+firstDir, c.y, true, false) {
 			if c.density == 1 {
 				// we flowed right and are now single density, flowing in another
 				// direction will create a gap

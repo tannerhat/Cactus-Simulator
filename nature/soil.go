@@ -103,7 +103,7 @@ func (s *soil) updateSubGroup(group int, subGroup int, wg *sync.WaitGroup) {
 
 }
 
-func (s *soil) Update(gameBoard game.GameBoard) {
+func (s *soil) Update() {
 	directions := [][]int{
 		[]int{0, 1},
 		[]int{0, -1},
@@ -160,6 +160,7 @@ func (s *soil) Absorb(x int, y int) bool {
 
 // TODO implement absorber interface so soil can use the solid AddToBoard
 func (s *soil) AddToBoard(gameboard game.GameBoard) {
+	s.Solid.AddToBoard(gameboard)
 	for x := range s.Cells {
 		for y := range s.Cells[x] {
 			if s.Cells[x][y] {

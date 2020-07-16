@@ -230,16 +230,17 @@ func (r *roots) SuckWater() uint32 {
 	return r.rootRoot.getWaterFromChildren()
 }
 
-func (r *roots) Update(gameBoard game.GameBoard) {
-	r.rootRoot.grow(gameBoard, r)
+func (r *roots) Update() {
+	r.rootRoot.grow(r.Gameboard, r)
 
 	r.ticks++
 	if r.ticks%r.speed == 0 {
-		r.rootRoot.absorbFromSoil(gameBoard, r)
+		r.rootRoot.absorbFromSoil(r.Gameboard, r)
 	}
 }
 
 func (r *roots) AddToBoard(gameBoard game.GameBoard) {
+	r.Shape.AddToBoard(gameBoard)
 	// roots don't take up space on the board, they exist sort of on top
 	// of soil. entities that interact with the cells that roots occupy
 	// should treat the cells as containing soil. they must be in soil though
@@ -250,7 +251,7 @@ func (r *roots) AddToBoard(gameBoard game.GameBoard) {
 			if r.Cells[x][y] {
 				boardX := r.X + x
 				boardY := r.Y + y
-				entity := gameBoard.EntityAt(boardX, boardY)
+				entity := r.Gameboard.EntityAt(boardX, boardY)
 				if soil, ok := entity.(*soil); ok {
 					err := soil.DigPartial(boardX, boardY)
 					if err != nil {

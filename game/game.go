@@ -31,7 +31,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	entityChan := g.gameBoard.Entities()
 
 	for e := range entityChan {
-		e.Update(g.gameBoard)
+		e.Update()
 	}
 
 	g.updateTime.Incr(int64(time.Since(updateStart)))
@@ -51,10 +51,9 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	g.drawTime.Incr(int64(time.Since(drawsStart)))
 
 	if g.debug {
-		msg := fmt.Sprintf(`TPS: %0.2f
-FPS: %0.2f
+		msg := fmt.Sprintf(`FPS: %0.2f
 Draw Time: %0.2f ms
-Update Time %0.2f ms`, ebiten.CurrentTPS(), ebiten.CurrentFPS(), g.drawTime.Rate()/float64(time.Millisecond), g.updateTime.Rate()/float64(time.Millisecond))
+Update Time %0.2f ms`, ebiten.CurrentFPS(), g.drawTime.Rate()/float64(time.Millisecond), g.updateTime.Rate()/float64(time.Millisecond))
 		ebitenutil.DebugPrint(screen, msg)
 	}
 }

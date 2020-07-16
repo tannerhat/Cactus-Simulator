@@ -7,10 +7,11 @@ import (
 )
 
 type Shape struct {
-	X     int
-	Y     int
-	Cells [][]bool
-	color color.Color
+	X         int
+	Y         int
+	Cells     [][]bool
+	Gameboard GameBoard
+	color     color.Color
 }
 
 func (s *Shape) Name() string {
@@ -47,11 +48,12 @@ func (s *Shape) Draw(screen *ebiten.Image, scale int) {
 	}
 }
 
-func (s *Shape) Update(gameboard GameBoard) {
+func (s *Shape) Update() {
 	return
 }
 
 func (s *Shape) AddToBoard(gameboard GameBoard) {
+	s.Gameboard = gameboard
 	return
 }
 
