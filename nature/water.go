@@ -17,14 +17,14 @@ type water struct {
 	y         int
 	density   int
 	settled   int
-	gameboard game.GameBoard
+	gameboard game.Gameboard
 }
 
 func (c *water) Name() string {
 	return "water"
 }
 
-func (c *water) AddToBoard(gameBoard game.GameBoard) {
+func (c *water) AddToBoard(gameBoard game.Gameboard) {
 	c.gameboard = gameBoard
 	c.gameboard.SetEntity(c, c.x, c.y)
 }
@@ -48,7 +48,7 @@ func (w *water) Draw(screen *ebiten.Image, scale int) {
 	screen.DrawImage(waterImage, op)
 }
 
-func (c *water) flowTo(gameBoard game.GameBoard, x int, y int, force bool, dry bool) bool {
+func (c *water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry bool) bool {
 	width, height := gameBoard.Size()
 	if x < 0 || x >= width {
 		// off of left or right
@@ -114,7 +114,7 @@ func (c *water) flowTo(gameBoard game.GameBoard, x int, y int, force bool, dry b
 	return false
 }
 
-func (c *water) underPressure(gameBoard game.GameBoard) bool {
+func (c *water) underPressure(gameBoard game.Gameboard) bool {
 	return !(c.flowTo(gameBoard, c.x, c.y+1, false, true) ||
 		c.flowTo(gameBoard, c.x-1, c.y, false, true) ||
 		c.flowTo(gameBoard, c.x+1, c.y, false, true) ||

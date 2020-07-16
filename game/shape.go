@@ -6,18 +6,19 @@ import (
 	"github.com/hajimehoshi/ebiten"
 )
 
+// Shape is a simple non physical entity. Non physical means that it does not take up any space on the gameboard but will still be drawn.
 type Shape struct {
-	X         int
-	Y         int
+	// The gameboard X coordinate of Shape
+	X int
+	// The gameboard Y coordinate of Shape
+	Y int
+	// Cells tracks which of the cells in the box bounded by (X,Y) and (X+width,Y+height) are actually part of the Shape.
 	Cells     [][]bool
-	Gameboard GameBoard
+	Gameboard Gameboard
 	color     color.Color
 }
 
-func (s *Shape) Name() string {
-	return "shape"
-}
-
+// New shape returns a Shape that is located at gameboard coordinates (x,y) with an empty Cells matrix of size width x height.
 func NewShape(x int, y int, width int, height int, color color.Color) *Shape {
 	s := &Shape{
 		X:     x,
@@ -33,6 +34,7 @@ func NewShape(x int, y int, width int, height int, color color.Color) *Shape {
 	return s
 }
 
+// Draw the shape to screen. It will be drawn starting at (X*scale,Y*scale). only x,y coordinates where Cells[x][y] is true are drawn.
 func (s *Shape) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
 	cellImage.Fill(s.color)
@@ -52,7 +54,8 @@ func (s *Shape) Update() {
 	return
 }
 
-func (s *Shape) AddToBoard(gameboard GameBoard) {
+// AddToBoard stores the gameboard to the Shape, it doesn't set any positions on the board because shape is non physical
+func (s *Shape) AddToBoard(gameboard Gameboard) {
 	s.Gameboard = gameboard
 	return
 }

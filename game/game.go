@@ -14,7 +14,7 @@ import (
 // Game implements ebiten.Game and keeps track of the gameboard and entities.
 type Game struct {
 	canvasImage  *ebiten.Image
-	gameBoard    GameBoard
+	gameboard    Gameboard
 	drawTime     *ratecounter.AvgRateCounter
 	updateTime   *ratecounter.AvgRateCounter
 	debug        bool
@@ -30,7 +30,7 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	}
 
 	updateStart := time.Now()
-	entityChan := g.gameBoard.Entities()
+	entityChan := g.gameboard.Entities()
 
 	for e := range entityChan {
 		e.Update()
@@ -47,7 +47,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	drawsStart := time.Now()
 	screen.DrawImage(g.canvasImage, nil)
 
-	entityChan := g.gameBoard.Entities()
+	entityChan := g.gameboard.Entities()
 	for e := range entityChan {
 		e.Draw(screen, g.scale)
 	}
@@ -68,7 +68,7 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 // AddEntity adds the given entity to the game's board.
 func (g *Game) AddEntity(entity Entity) {
-	g.gameBoard.AddEntity(entity)
+	g.gameboard.AddEntity(entity)
 }
 
 // NewGame creates a game with the given screen width and height. Scale indicates how many pixels per cell in the gameboard.
@@ -84,7 +84,7 @@ func NewGame(width int, height int, background color.Color, scale int) *Game {
 	g.canvasImage, _ = ebiten.NewImage(width, height, ebiten.FilterDefault)
 	g.canvasImage.Fill(background)
 	b := NewGameboard(g.screenWidth/g.scale, g.screenHeight/g.scale)
-	g.gameBoard = b
+	g.gameboard = b
 
 	return &g
 }

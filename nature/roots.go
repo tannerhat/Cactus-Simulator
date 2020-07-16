@@ -49,7 +49,7 @@ func NewRoots(x int, y int, width int, height int, startX int, startY int) *root
 	return r
 }
 
-func (rc *rootCell) absorbFromSoil(gameboard game.GameBoard, rootBox *roots) {
+func (rc *rootCell) absorbFromSoil(gameboard game.Gameboard, rootBox *roots) {
 	for _, child := range rc.children {
 		child.absorbFromSoil(gameboard, rootBox)
 	}
@@ -123,7 +123,7 @@ func (rc *rootCell) getWaterFromChildren() uint32 {
 // grow tells a root cell to grow. a call to grow will result in at most 1
 // new root cell. grow will add the grown cells to the linked list as well
 // as to the rootBox contaning it.
-func (rc *rootCell) grow(gameboard game.GameBoard, rootBox *roots) bool {
+func (rc *rootCell) grow(gameboard game.Gameboard, rootBox *roots) bool {
 	// we favor deep root growth, give children a chance to grow first
 	for _, child := range rc.children {
 		if child.grow(gameboard, rootBox) {
@@ -148,7 +148,7 @@ func (rc *rootCell) grow(gameboard game.GameBoard, rootBox *roots) bool {
 	return false
 }
 
-func (r *roots) AddRoot(x int, y int, gameboard game.GameBoard) bool {
+func (r *roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 	if x < 0 || x >= r.Width() || y < 0 || y >= r.Height() {
 		return false
 	}
@@ -239,7 +239,7 @@ func (r *roots) Update() {
 	}
 }
 
-func (r *roots) AddToBoard(gameBoard game.GameBoard) {
+func (r *roots) AddToBoard(gameBoard game.Gameboard) {
 	r.Shape.AddToBoard(gameBoard)
 	// roots don't take up space on the board, they exist sort of on top
 	// of soil. entities that interact with the cells that roots occupy

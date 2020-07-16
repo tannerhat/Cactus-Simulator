@@ -13,5 +13,5 @@ type Entity interface {
 	Update()
 
 	// Called when entity is added to the game, the entity marks its initial positions on the game board
-	AddToBoard(gameBoard GameBoard)
+	AddToBoard(gameboard Gameboard)
 }

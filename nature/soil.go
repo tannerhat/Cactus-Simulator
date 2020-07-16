@@ -159,7 +159,7 @@ func (s *soil) Absorb(x int, y int) bool {
 }
 
 // TODO implement absorber interface so soil can use the solid AddToBoard
-func (s *soil) AddToBoard(gameboard game.GameBoard) {
+func (s *soil) AddToBoard(gameboard game.Gameboard) {
 	s.Solid.AddToBoard(gameboard)
 	for x := range s.Cells {
 		for y := range s.Cells[x] {
