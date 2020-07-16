@@ -9,19 +9,19 @@ import (
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
-type cloud struct {
+type Cloud struct {
 	*game.Solid
 	rate    int
 	ticks   int
 	raining bool
 }
 
-func (c *cloud) Name() string {
+func (c *Cloud) Name() string {
 	return "cloud"
 }
 
-func NewCloud(x int, y int, width int, height int, rate int) *cloud {
-	c := &cloud{
+func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
+	c := &Cloud{
 		Solid:   game.NewSolid(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rate:    rate,
 		ticks:   0,
@@ -41,7 +41,7 @@ func NewCloud(x int, y int, width int, height int, rate int) *cloud {
 	return c
 }
 
-func (c *cloud) Update() {
+func (c *Cloud) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		c.raining = !c.raining
 	}
