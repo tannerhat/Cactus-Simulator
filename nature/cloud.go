@@ -9,6 +9,7 @@ import (
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
+// Cloud is a Solid that creates water entities that fall starting from the cloud's lower edge. Raining can be toggled by spacebar.
 type Cloud struct {
 	*game.Solid
 	rate    int
@@ -16,10 +17,8 @@ type Cloud struct {
 	raining bool
 }
 
-func (c *Cloud) Name() string {
-	return "cloud"
-}
-
+// NewCloud returns a cloud that will be at gameboard coordinates (x,y) once added to the game. Rate indicates
+// how many ticks between each water entity creation.
 func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
 	c := &Cloud{
 		Solid:   game.NewSolid(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
@@ -41,6 +40,7 @@ func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
 	return c
 }
 
+// Update the cloud, if it causes a water entity to be created, the cloud will add the entity to the gameboard directly.
 func (c *Cloud) Update() {
 	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		c.raining = !c.raining
