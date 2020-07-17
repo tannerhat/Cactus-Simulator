@@ -12,6 +12,9 @@ type Entity interface {
 	// Update the entity by one tick
 	Update()
 
-	// Called when entity is added to the game, the entity marks its initial positions on the game board
+	// AddToBoard is called by game when an entity is added, the entity marks its initial positions on the game board
 	AddToBoard(gameboard Gameboard)
+
+	// Layer returns the layer of the entity for draw purposes
+	Layer() int
 }

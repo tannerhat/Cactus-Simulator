@@ -19,7 +19,7 @@ type Plant struct {
 // NewPlant creates a plant that will start as a 1x1 Shape at x,y. It will SuckWater from root.
 func NewPlant(x int, y int, root *Roots) *Plant {
 	p := &Plant{
-		Shape:            game.NewShape(x, y, 1, 1, color.RGBA{0x00, 0xff, 0x00, 0xff}),
+		Shape:            game.NewShape(x, y, 1, 1, 1, color.RGBA{0x00, 0xff, 0x00, 0xff}),
 		speed:            2,
 		ticks:            0,
 		root:             root,

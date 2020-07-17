@@ -48,8 +48,20 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(g.canvasImage, nil)
 
 	entityChan := g.gameboard.Entities()
+	entityList := []Entity{}
+	maxLayer := 0
 	for e := range entityChan {
-		e.Draw(screen, g.scale)
+		entityList = append(entityList, e)
+		if e.Layer() > maxLayer {
+			maxLayer = e.Layer()
+		}
+	}
+
+	// reuse the entity list rather than get a new entities channel from gameboard because entities could've changed
+	for layer := 0; layer < maxLayer; layer++ {
+		for _, e := range entityList {
+			e.Draw(screen, g.scale)
+		}
 	}
 
 	g.drawTime.Incr(int64(time.Since(drawsStart)))

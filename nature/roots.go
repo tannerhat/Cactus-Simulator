@@ -28,7 +28,7 @@ type rootCell struct {
 
 func NewRoots(x int, y int, width int, height int, startX int, startY int) *Roots {
 	r := &Roots{
-		Shape: game.NewShape(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
+		Shape: game.NewShape(x, y, width, height, 2, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rootRoot: &rootCell{
 			children: make([]*rootCell, 0),
 			wetness:  0,

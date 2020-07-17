@@ -22,7 +22,7 @@ const maxWetness uint32 = 3
 
 func NewSoil(x int, y int, width int, height int) *Soil {
 	s := &Soil{
-		Solid:         game.NewSolid(x, y, width, height, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
+		Solid:         game.NewSolid(x, y, width, height, 1, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
 		absorbRate:    3,
 		evaporateRate: 300,
 	}

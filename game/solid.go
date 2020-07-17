@@ -9,9 +9,9 @@ type Solid struct {
 	*Shape
 }
 
-func NewSolid(x int, y int, width int, height int, color color.Color) *Solid {
+func NewSolid(x int, y int, width int, height int, layer int, color color.Color) *Solid {
 	s := &Solid{
-		Shape: NewShape(x, y, width, height, color),
+		Shape: NewShape(x, y, width, height, layer, color),
 	}
 
 	return s

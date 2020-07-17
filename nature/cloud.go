@@ -21,7 +21,7 @@ type Cloud struct {
 // how many ticks between each water entity creation.
 func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
 	c := &Cloud{
-		Solid:   game.NewSolid(x, y, width, height, color.RGBA{0xff, 0xff, 0xff, 0xff}),
+		Solid:   game.NewSolid(x, y, width, height, 0, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rate:    rate,
 		ticks:   0,
 		raining: false,

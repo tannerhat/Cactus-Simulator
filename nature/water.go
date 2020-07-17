@@ -175,3 +175,7 @@ func (c *Water) Update() {
 		}
 	}
 }
+
+func (w *Water) Layer() int {
+	return 2
+}

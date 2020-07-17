@@ -16,14 +16,16 @@ type Shape struct {
 	Cells     [][]bool
 	Gameboard Gameboard
 	color     color.Color
+	layer     int
 }
 
 // New shape returns a Shape that is located at gameboard coordinates (x,y) with an empty Cells matrix of size width x height.
-func NewShape(x int, y int, width int, height int, color color.Color) *Shape {
+func NewShape(x int, y int, width int, height int, layer int, color color.Color) *Shape {
 	s := &Shape{
 		X:     x,
 		Y:     y,
 		color: color,
+		layer: layer,
 	}
 
 	s.Cells = make([][]bool, width)
@@ -67,4 +69,8 @@ func (s *Shape) Width() int {
 func (s *Shape) Height() int {
 	// TODO: enforce a width > 0 and height > 0 requirement on solid
 	return len(s.Cells[0])
+}
+
+func (s *Shape) Layer() int {
+	return s.layer
 }
