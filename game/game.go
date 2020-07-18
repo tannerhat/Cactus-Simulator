@@ -150,7 +150,7 @@ Game time: %0.2f hours`,
 			ebitenutil.DebugPrint(screen, msg)
 		}
 		if g.mode == ModeWin {
-			texts := []string{"", "", "", "YOU GREW THE PERFECT:", "", "CACTUS", "", "", "", "", "Press Escape to Leave."}
+			texts := []string{"", "", "", "YOU GREW THE PERFECT:", "", "CACTUS", "", "Press Escape to Leave."}
 			for i, l := range texts {
 				x := (g.screenWidth - len(l)*fontSize) / 2
 				text.Draw(screen, l, arcadeFont, x, (i+4)*fontSize, color.White)
