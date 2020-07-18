@@ -65,3 +65,7 @@ func (p *Plant) Update() {
 
 	return
 }
+
+func (p *Plant) Win() bool {
+	return p.Height() > 10
+}
