@@ -24,7 +24,7 @@ func NewSoil(x int, y int, width int, height int) *Soil {
 	s := &Soil{
 		Solid:         game.NewSolid(x, y, width, height, 1, color.RGBA{0xc2, 0xb2, 0x80, 0xff}),
 		absorbRate:    3,
-		evaporateRate: 300,
+		evaporateRate: 200,
 	}
 
 	s.colors = make([]color.Color, maxWetness+1)
@@ -61,6 +61,7 @@ func NewSoil(x int, y int, width int, height int) *Soil {
 
 func (s *Soil) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
+	defer cellImage.Dispose()
 
 	var wetness uint32
 	for ; wetness <= maxWetness; wetness++ {
@@ -113,7 +114,7 @@ func (s *Soil) Update() {
 
 	for x := 0; x < s.Width(); x++ {
 		for y := 0; y < s.Height(); y++ {
-			if (s.wetness[x][y] == 1 || (s.wetness[x][y] > 1 && y == 0)) && rand.Intn((y+1)*s.evaporateRate) == 0 {
+			if (s.wetness[x][y] == 1 || (s.wetness[x][y] > 1 && y == 0)) && rand.Intn((y/2+1)*s.evaporateRate) == 0 {
 				s.wetness[x][y]--
 			}
 			if s.wetness[x][y] > 1 {
@@ -128,6 +129,10 @@ func (s *Soil) Update() {
 								s.wetness[otherX][otherY]++
 								s.wetness[x][y]--
 							}
+						} else if s.wetness[x][y] > maxWetness {
+							// otherX/otherY is off the screen. transfer wetness if we are > max to prevent
+							// soil oversaturation
+							s.wetness[x][y]--
 						}
 					}
 				}
@@ -154,7 +159,8 @@ func (s *Soil) Absorb(x int, y int) bool {
 	return false
 }
 
-// TODO implement absorber interface so soil can use the solid AddToBoard
+// TODO implement absorber interface so soil can use the solid AddToBoard, if we use soil add to board,
+// the roots/water won't be able to tell.
 func (s *Soil) AddToBoard(gameboard game.Gameboard) {
 	s.Solid.AddToBoard(gameboard)
 	for x := range s.Cells {
@@ -164,24 +170,6 @@ func (s *Soil) AddToBoard(gameboard game.Gameboard) {
 			}
 		}
 	}
-}
-
-// DigPartial takes gameboard coordinates of a soil cell and "makes room" for an
-// entity to exist at those coordinates. Partial means that the change is cosmetic
-// the soil will no longer draw the cell, otherwise no change.
-func (s *Soil) DigPartial(x int, y int) error {
-	// convert x and y into soil position
-	x -= s.X
-	y -= s.Y
-
-	if x < 0 || y < 0 || x >= s.Width() || y >= s.Height() {
-		return fmt.Errorf("cell being dug (%d,%d)(%d,%d) is not in the soil", x+s.X, y+s.Y, x, y)
-	}
-
-	// don't display as part of the shape
-	s.Cells[x][y] = false
-
-	return nil
 }
 
 func (s *Soil) IsWet(x int, y int) (bool, error) {

@@ -9,7 +9,7 @@ type Gameboard interface {
 	// MoveEntity moves the entity at (px,py) to (x,y), (px,py) will be empty after this
 	MoveEntity(px int, py int, x int, y int)
 
-	// AddEntity add the entity to the list that Gameboard tracks. It will also call the entity's AddToBoard
+	// AddEntity add the entity to the list that Gameboard tracks. It will also call the entity's AddToBoard.
 	AddEntity(e Entity)
 
 	// Entities returns a channel of all entities in the board at time of calling. Changes to the entity list after calling will not affect the channel's contents.

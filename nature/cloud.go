@@ -4,14 +4,12 @@ import (
 	"image/color"
 	"math/rand"
 
-	"github.com/hajimehoshi/ebiten"
-	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
-// Cloud is a Solid that creates water entities that fall starting from the cloud's lower edge. Raining can be toggled by spacebar.
+// Cloud is a Shape that creates water entities that fall starting from the cloud's lower edge. Raining can be toggled by spacebar.
 type Cloud struct {
-	*game.Solid
+	*game.Shape
 	rate    int
 	ticks   int
 	raining bool
@@ -21,7 +19,7 @@ type Cloud struct {
 // how many ticks between each water entity creation.
 func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
 	c := &Cloud{
-		Solid:   game.NewSolid(x, y, width, height, 0, color.RGBA{0xff, 0xff, 0xff, 0xff}),
+		Shape:   game.NewShape(x, y, width, height, 0, color.RGBA{0xff, 0xff, 0xff, 0xff}),
 		rate:    rate,
 		ticks:   0,
 		raining: false,
@@ -42,9 +40,6 @@ func NewCloud(x int, y int, width int, height int, rate int) *Cloud {
 
 // Update the cloud, if it causes a water entity to be created, the cloud will add the entity to the gameboard directly.
 func (c *Cloud) Update() {
-	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
-		c.raining = !c.raining
-	}
 	if c.raining {
 		if c.ticks%c.rate == 0 {
 			c.Gameboard.AddEntity(
@@ -58,4 +53,9 @@ func (c *Cloud) Update() {
 		}
 		c.ticks++
 	}
+}
+
+func (c *Cloud) SetStatus(raining bool, rate int) {
+	c.raining = raining
+	c.rate = rate
 }

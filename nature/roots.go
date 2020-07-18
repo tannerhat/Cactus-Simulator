@@ -35,8 +35,8 @@ func NewRoots(x int, y int, width int, height int, startX int, startY int) *Root
 			x:        startX,
 			y:        startY,
 		},
-		growRate: 100,
-		speed:    600,
+		growRate: 1500,
+		speed:    500,
 		ticks:    0,
 	}
 
@@ -180,10 +180,6 @@ func (r *Roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 		}
 
 		if wet {
-			err = soil.DigPartial(boardX, boardY)
-			if err != nil {
-				return false
-			}
 			r.Cells[x][y] = true
 			return true
 		}
@@ -194,6 +190,7 @@ func (r *Roots) AddRoot(x int, y int, gameboard game.Gameboard) bool {
 
 func (r *Roots) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
+	defer cellImage.Dispose()
 
 	// draw dry roots
 	cellImage.Fill(color.RGBA{0xff, 0xff, 0xff, 0xff})
@@ -248,11 +245,8 @@ func (r *Roots) AddToBoard(gameBoard game.Gameboard) {
 				boardX := r.X + x
 				boardY := r.Y + y
 				entity := r.Gameboard.EntityAt(boardX, boardY)
-				if soil, ok := entity.(*Soil); ok {
-					err := soil.DigPartial(boardX, boardY)
-					if err != nil {
-						panic(err)
-					}
+				if _, ok := entity.(*Soil); !ok {
+					panic("creating roots in non soil location, idiot")
 				}
 			}
 		}

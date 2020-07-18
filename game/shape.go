@@ -39,6 +39,7 @@ func NewShape(x int, y int, width int, height int, layer int, color color.Color)
 // Draw the shape to screen. It will be drawn starting at (X*scale,Y*scale). only x,y coordinates where Cells[x][y] is true are drawn.
 func (s *Shape) Draw(screen *ebiten.Image, scale int) {
 	cellImage, _ := ebiten.NewImage(scale, scale, ebiten.FilterDefault)
+	defer cellImage.Dispose()
 	cellImage.Fill(s.color)
 
 	for x := range s.Cells {

@@ -48,8 +48,13 @@ func (w *Water) Draw(screen *ebiten.Image, scale int) {
 func (c *Water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry bool) bool {
 	width, height := gameBoard.Size()
 	if x < 0 || x >= width {
-		// off of left or right
-		return false
+		// off of left or right, allow it
+		c.density--
+		if c.density == 0 {
+			gameBoard.SetEntity(nil, c.x, c.y)
+			gameBoard.RemoveEntity(c)
+		}
+		return true
 	}
 
 	if y < 0 || y >= height {
@@ -82,7 +87,7 @@ func (c *Water) flowTo(gameBoard game.Gameboard, x int, y int, force bool, dry b
 	}
 
 	if other, ok := e.(*Water); ok {
-		if force && other.density == 1 && !other.underPressure(gameBoard) {
+		if force { //&& other.density == 1 && !other.underPressure(gameBoard) {
 			if dry {
 				return true
 			}

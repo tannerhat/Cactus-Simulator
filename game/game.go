@@ -2,7 +2,6 @@ package game
 
 import (
 	"fmt"
-	"image/color"
 	"time"
 
 	"github.com/hajimehoshi/ebiten"
@@ -13,7 +12,6 @@ import (
 
 // Game implements ebiten.Game and keeps track of the gameboard and entities.
 type Game struct {
-	canvasImage  *ebiten.Image
 	gameboard    Gameboard
 	drawTime     *ratecounter.AvgRateCounter
 	updateTime   *ratecounter.AvgRateCounter
@@ -21,23 +19,44 @@ type Game struct {
 	screenHeight int
 	screenWidth  int
 	scale        int
+	speed        int
+	ticks        int
 }
 
 // Update progresses the game one tick, updating all entities that have been added to the game's board.
 func (g *Game) Update(screen *ebiten.Image) error {
-	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-		g.debug = !g.debug
-	}
-
 	updateStart := time.Now()
-	entityChan := g.gameboard.Entities()
 
-	for e := range entityChan {
-		e.Update()
+	if inpututil.IsKeyJustPressed(ebiten.Key1) {
+		g.speed = 0
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key2) {
+		g.speed = 1
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key3) {
+		g.speed = 10
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key4) {
+		g.speed = 60
+	}
+	if inpututil.IsKeyJustPressed(ebiten.Key5) {
+		g.speed = 300
 	}
 
-	g.updateTime.Incr(int64(time.Since(updateStart)))
+	for i := 0; i < g.speed; i++ {
+		g.ticks++
+		if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+			g.debug = !g.debug
+		}
 
+		entityChan := g.gameboard.Entities()
+
+		for e := range entityChan {
+			e.Update()
+		}
+
+	}
+	g.updateTime.Incr(int64(time.Since(updateStart)))
 	return nil
 }
 
@@ -45,7 +64,6 @@ func (g *Game) Update(screen *ebiten.Image) error {
 // draw order is not guaranteed.
 func (g *Game) Draw(screen *ebiten.Image) {
 	drawsStart := time.Now()
-	screen.DrawImage(g.canvasImage, nil)
 
 	entityChan := g.gameboard.Entities()
 	entityList := []Entity{}
@@ -58,9 +76,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	}
 
 	// reuse the entity list rather than get a new entities channel from gameboard because entities could've changed
-	for layer := 0; layer < maxLayer; layer++ {
+	for layer := 0; layer <= maxLayer; layer++ {
 		for _, e := range entityList {
-			e.Draw(screen, g.scale)
+			if e.Layer() == layer {
+				e.Draw(screen, g.scale)
+			}
 		}
 	}
 
@@ -69,7 +89,14 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	if g.debug {
 		msg := fmt.Sprintf(`FPS: %0.2f
 Draw Time: %0.2f ms
-Update Time %0.2f ms`, ebiten.CurrentFPS(), g.drawTime.Rate()/float64(time.Millisecond), g.updateTime.Rate()/float64(time.Millisecond))
+Update Time: %0.2f ms
+Speed: %d
+Game time: %0.2f hours`,
+			ebiten.CurrentFPS(),
+			g.drawTime.Rate()/float64(time.Millisecond),
+			g.updateTime.Rate()/float64(time.Millisecond),
+			g.speed,
+			float64(g.ticks)/60.0/60.0/60.0)
 		ebitenutil.DebugPrint(screen, msg)
 	}
 }
@@ -84,17 +111,17 @@ func (g *Game) AddEntity(entity Entity) {
 }
 
 // NewGame creates a game with the given screen width and height. Scale indicates how many pixels per cell in the gameboard.
-func NewGame(width int, height int, background color.Color, scale int) *Game {
+func NewGame(width int, height int, scale int) *Game {
 	g := Game{
 		drawTime:     ratecounter.NewAvgRateCounter(time.Second),
 		updateTime:   ratecounter.NewAvgRateCounter(time.Second),
-		debug:        false,
+		debug:        true,
 		screenWidth:  width,
 		screenHeight: height,
 		scale:        scale,
+		speed:        1,
+		ticks:        0,
 	}
-	g.canvasImage, _ = ebiten.NewImage(width, height, ebiten.FilterDefault)
-	g.canvasImage.Fill(background)
 	b := NewGameboard(g.screenWidth/g.scale, g.screenHeight/g.scale)
 	g.gameboard = b
 

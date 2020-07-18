@@ -23,7 +23,7 @@ func NewPlant(x int, y int, root *Roots) *Plant {
 		speed:            2,
 		ticks:            0,
 		root:             root,
-		waterCostPerCell: 20,
+		waterCostPerCell: 800,
 	}
 	p.Cells[0][0] = true
 	return p
