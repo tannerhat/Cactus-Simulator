@@ -42,12 +42,12 @@ func (g *Game) Update(screen *ebiten.Image) error {
 	if inpututil.IsKeyJustPressed(ebiten.Key5) {
 		g.speed = 300
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyD) {
+		g.debug = !g.debug
+	}
 
 	for i := 0; i < g.speed; i++ {
 		g.ticks++
-		if inpututil.IsKeyJustPressed(ebiten.KeyD) {
-			g.debug = !g.debug
-		}
 
 		entityChan := g.gameboard.Entities()
 

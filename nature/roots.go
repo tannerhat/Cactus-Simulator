@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
 	"github.com/tannerhat/Cactus-Simulator/game"
 )
 
@@ -227,7 +228,7 @@ func (r *Roots) Update() {
 	r.rootRoot.grow(r.Gameboard, r)
 
 	r.ticks++
-	if r.ticks%r.speed == 0 {
+	if inpututil.IsKeyJustPressed(ebiten.KeySpace) {
 		r.rootRoot.absorbFromSoil(r.Gameboard, r)
 	}
 }
